@@ -1,15 +1,22 @@
 package org.sathyasai.ssbcsj;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
+import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 public class BhajanMaker extends HttpServlet {
 	private static final long serialVersionUID = -1936457346720697934L;
@@ -23,21 +30,49 @@ public class BhajanMaker extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		XMLSlideShow ppt = new XMLSlideShow(request.getSession()
-				.getServletContext().getResourceAsStream("/WEB-INF/poi.pptx"));
-		XMLSlideShow newPresentation = new XMLSlideShow();
-		final XSLFSlide[] slides = ppt.getSlides();
-		for (int i = 0; i < 1; ++i) {
-			for (XSLFSlide slide : slides) {
-				XSLFSlide newSlide = newPresentation.createSlide();
-				newSlide.importContent(slide);
-				XSLFAutoShape shape = (XSLFAutoShape) newSlide.iterator()
-						.next();
-				shape.getTextParagraphs().get(0).getTextRuns().get(0)
-						.setText("Hello World!");
 
-			}
+		final Object json = JSONValue.parse(new InputStreamReader(request
+				.getInputStream()));
+
+		final JSONArray array;
+		if (json instanceof JSONArray) {
+			array = (JSONArray) json;
+		} else {
+			array = new JSONArray();
+			array.add(json);
 		}
+
+		final XMLSlideShow templatePresentation = new XMLSlideShow(request
+				.getSession().getServletContext()
+				.getResourceAsStream("/WEB-INF/poi.pptx"));
+		final XSLFSlide template = templatePresentation.getSlides()[0];
+		final XMLSlideShow newPresentation = new XMLSlideShow();
+
+		for (final Object o : array) {
+			JSONObject bhajan = (JSONObject) o;
+
+			String lyric = StringUtils
+					.trimToEmpty((String) bhajan.get("lyric"));
+			String meaning = StringUtils.trimToEmpty((String) bhajan
+					.get("meaning"));
+			String scale = StringUtils
+					.trimToEmpty((String) bhajan.get("scale"));
+
+			XSLFSlide slide = newPresentation.createSlide();
+			slide.importContent(template);
+
+			final Iterator<XSLFShape> shapes = slide.iterator();
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(lyric);
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(meaning);
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(scale);
+		}
+
 		response.setContentType("application/vnd.ms-ppt");
 		response.setHeader("Content-Disposition",
 				"inline; filename=\"bhajans.pptx\"");
