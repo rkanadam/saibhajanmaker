@@ -31,8 +31,7 @@ public class BhajanMaker extends HttpServlet {
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
-		final Object json = JSONValue.parse(new InputStreamReader(request
-				.getInputStream()));
+		final Object json = JSONValue.parse(request.getParameter("bhajans"));
 
 		final JSONArray array;
 		if (json instanceof JSONArray) {
