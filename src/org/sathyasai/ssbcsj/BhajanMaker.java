@@ -1,7 +1,6 @@
 package org.sathyasai.ssbcsj;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
@@ -9,14 +8,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BhajanMaker extends HttpServlet {
 	private static final long serialVersionUID = -1936457346720697934L;
@@ -31,16 +29,7 @@ public class BhajanMaker extends HttpServlet {
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 
-		String bhajanString = request.getParameter("bhajans");
-		final Object json = JSONValue.parse(bhajanString);
-
-		final JSONArray array;
-		if (json instanceof JSONArray) {
-			array = (JSONArray) json;
-		} else {
-			array = new JSONArray();
-			array.add(json);
-		}
+		final String json = request.getParameter("bhajans");
 
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession().getServletContext()
@@ -48,29 +37,24 @@ public class BhajanMaker extends HttpServlet {
 		final XSLFSlide template = templatePresentation.getSlides()[0];
 		final XMLSlideShow newPresentation = new XMLSlideShow();
 
-		for (final Object o : array) {
-			JSONObject bhajan = (JSONObject) o;
-
-			String lyric = StringUtils
-					.trimToEmpty((String) bhajan.get("lyric"));
-			String meaning = StringUtils.trimToEmpty((String) bhajan
-					.get("meaning"));
-			String scale = StringUtils
-					.trimToEmpty((String) bhajan.get("scale"));
-
+		final MappingIterator<Bhajan> iterator = new ObjectMapper().reader(
+				Bhajan.class).readValues(json);
+		while (iterator.hasNext()) {
+			final Bhajan bhajan = iterator.next();
 			XSLFSlide slide = newPresentation.createSlide();
 			slide.importContent(template);
 
 			final Iterator<XSLFShape> shapes = slide.iterator();
 
 			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(lyric);
+					.getTextRuns().get(0).setText(bhajan.getLyrics());
 
 			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(meaning);
+					.getTextRuns().get(0).setText(bhajan.getMeaning());
 
 			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(scale);
+					.getTextRuns().get(0).setText(bhajan.getScale());
+
 		}
 
 		response.setContentType("application/vnd.ms-ppt");
