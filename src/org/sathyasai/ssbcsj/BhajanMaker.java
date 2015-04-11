@@ -72,7 +72,13 @@ public class BhajanMaker extends HttpServlet {
 				String firstLineOfNextBhajan = nextBhajan.getLyrics().split(
 						"\n")[0];
 				firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0,
-						Math.min(firstLineOfNextBhajan.length(), 25));
+						Math.min(firstLineOfNextBhajan.length(), 35));
+				if (!firstLineOfNextBhajan.endsWith(" ")) {
+					int lastIndex = firstLineOfNextBhajan.lastIndexOf(' ');
+					if (lastIndex != -1) {
+						firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0, lastIndex);
+					}
+				}
 				((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
 						.getTextRuns().get(0).setText(firstLineOfNextBhajan);
 			}
