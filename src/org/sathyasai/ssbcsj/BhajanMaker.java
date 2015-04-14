@@ -38,9 +38,17 @@ public class BhajanMaker extends HttpServlet {
 
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession().getServletContext()
-				.getResourceAsStream("/WEB-INF/poi.pptx"));
+				.getResourceAsStream("/WEB-INF/master.pptx"));
 		final XSLFSlide template = templatePresentation.getSlides()[0];
+
 		final XMLSlideShow newPresentation = new XMLSlideShow();
+
+		final XMLSlideShow prefix = new XMLSlideShow(request.getSession()
+				.getServletContext()
+				.getResourceAsStream("/WEB-INF/prefix.pptx"));
+		for (XSLFSlide slide : prefix.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
 
 		for (int i = 0, len = bhajans.size(); i < len; ++i) {
 
@@ -68,7 +76,7 @@ public class BhajanMaker extends HttpServlet {
 				final Bhajan nextBhajan = bhajans.get(i + 1);
 				((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
 						.getTextRuns().get(0).setText(nextBhajan.getScale());
-				
+
 				String firstLineOfNextBhajan = nextBhajan.getLyrics().split(
 						"\n")[0];
 				firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0,
@@ -76,13 +84,22 @@ public class BhajanMaker extends HttpServlet {
 				if (!firstLineOfNextBhajan.endsWith(" ")) {
 					int lastIndex = firstLineOfNextBhajan.lastIndexOf(' ');
 					if (lastIndex != -1) {
-						firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0, lastIndex);
+						firstLineOfNextBhajan = firstLineOfNextBhajan
+								.substring(0, lastIndex);
 					}
 				}
 				((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
 						.getTextRuns().get(0).setText(firstLineOfNextBhajan);
 			}
 		}
+
+		final XMLSlideShow suffix = new XMLSlideShow(request.getSession()
+				.getServletContext()
+				.getResourceAsStream("/WEB-INF/suffix.pptx"));
+		for (XSLFSlide slide : suffix.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+
 
 		response.setContentType("application/vnd.ms-ppt");
 		response.setHeader("Content-Disposition",
