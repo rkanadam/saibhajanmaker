@@ -14,7 +14,6 @@ import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 
-import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class BhajanMaker extends HttpServlet {
@@ -27,14 +26,14 @@ public class BhajanMaker extends HttpServlet {
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(final HttpServletRequest request,
+			final HttpServletResponse httpResponse) throws ServletException,
+			IOException {
 
 		final String json = request.getParameter("bhajans");
 
-		final MappingIterator<Bhajan> iterator = new ObjectMapper().reader(
-				Bhajan.class).readValues(json);
-		final List<Bhajan> bhajans = iterator.readAll();
+		final Response response = new ObjectMapper().reader(Response.class)
+				.readValue(json);
 
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession().getServletContext()
@@ -49,6 +48,8 @@ public class BhajanMaker extends HttpServlet {
 		for (XSLFSlide slide : prefix.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
+
+		final List<Bhajan> bhajans = response.getBhajans();
 
 		for (int i = 0, len = bhajans.size(); i < len; ++i) {
 
@@ -100,10 +101,9 @@ public class BhajanMaker extends HttpServlet {
 			newPresentation.createSlide().importContent(slide);
 		}
 
-
-		response.setContentType("application/vnd.ms-ppt");
-		response.setHeader("Content-Disposition",
+		httpResponse.setContentType("application/vnd.ms-ppt");
+		httpResponse.setHeader("Content-Disposition",
 				"inline; filename=\"bhajans.pptx\"");
-		newPresentation.write(response.getOutputStream());
+		newPresentation.write(httpResponse.getOutputStream());
 	}
 }
