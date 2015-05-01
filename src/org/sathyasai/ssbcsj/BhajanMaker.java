@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFShape;
@@ -45,7 +46,7 @@ public class BhajanMaker extends HttpServlet {
 		final XMLSlideShow prefix = new XMLSlideShow(request.getSession()
 				.getServletContext()
 				.getResourceAsStream("/WEB-INF/prefix.pptx"));
-		for (XSLFSlide slide : prefix.getSlides()) {
+		for (final XSLFSlide slide : prefix.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
 
@@ -94,10 +95,41 @@ public class BhajanMaker extends HttpServlet {
 			}
 		}
 
-		final XMLSlideShow suffix = new XMLSlideShow(request.getSession()
-				.getServletContext()
-				.getResourceAsStream("/WEB-INF/suffix.pptx"));
-		for (XSLFSlide slide : suffix.getSlides()) {
+		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())) {
+			final XMLSlideShow divineCodeOfConductPresentation = new XMLSlideShow(
+					request.getSession()
+							.getServletContext()
+							.getResourceAsStream(
+									"/WEB-INF/divineCodeOfConduct.pptx"));
+			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
+				final XSLFSlide importedSlide = newPresentation.createSlide()
+						.importContent(slide);
+				((XSLFAutoShape) importedSlide.getShapes()[1])
+						.getTextParagraphs().get(0).getTextRuns().get(0)
+						.setText(response.getDivineCodeOfConduct());
+			}
+		}
+
+		if (!StringUtils.isEmpty(response.getThoughtForTheWeek())) {
+			final XMLSlideShow thoughtForTheWeekPresentation = new XMLSlideShow(
+					request.getSession()
+							.getServletContext()
+							.getResourceAsStream(
+									"/WEB-INF/thoughtForTheWeek.pptx"));
+			for (final XSLFSlide slide : thoughtForTheWeekPresentation
+					.getSlides()) {
+				final XSLFSlide importedSlide = newPresentation.createSlide()
+						.importContent(slide);
+				((XSLFAutoShape) importedSlide.getShapes()[1])
+						.getTextParagraphs().get(0).getTextRuns().get(0)
+						.setText(response.getThoughtForTheWeek());
+			}
+		}
+
+		final XMLSlideShow closingPrayersPresentation = new XMLSlideShow(
+				request.getSession().getServletContext()
+						.getResourceAsStream("/WEB-INF/closingPrayers.pptx"));
+		for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
 

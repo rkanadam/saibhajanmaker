@@ -12,14 +12,6 @@ public class Response {
 		this.bhajans = bhajans;
 	}
 
-	public final String getThoughtForTheDay() {
-		return thoughtForTheDay;
-	}
-
-	public final void setThoughtForTheDay(String thoughtForTheDay) {
-		this.thoughtForTheDay = thoughtForTheDay;
-	}
-
 	public final String getDivineCodeOfConduct() {
 		return divineCodeOfConduct;
 	}
@@ -29,5 +21,13 @@ public class Response {
 	}
 
 	private List<Bhajan> bhajans = new ArrayList<Bhajan>();
-	private String thoughtForTheDay = "", divineCodeOfConduct = "";
+	private String thoughtForTheWeek = "", divineCodeOfConduct = "";
+
+	public String getThoughtForTheWeek() {
+		return thoughtForTheWeek;
+	}
+
+	public void setThoughtForTheWeek(String thoughtForTheWeek) {
+		this.thoughtForTheWeek = thoughtForTheWeek;
+	}
 }
