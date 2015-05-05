@@ -95,6 +95,14 @@ public class BhajanMaker extends HttpServlet {
 			}
 		}
 
+		final XMLSlideShow postUnisonPresentation = new XMLSlideShow(request
+				.getSession().getServletContext()
+				.getResourceAsStream("/WEB-INF/postUnison.pptx"));
+		for (XSLFSlide slide : postUnisonPresentation.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+		
+
 		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())) {
 			final XMLSlideShow divineCodeOfConductPresentation = new XMLSlideShow(
 					request.getSession()
