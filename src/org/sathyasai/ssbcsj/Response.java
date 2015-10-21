@@ -22,6 +22,15 @@ public class Response {
 
 	private List<Bhajan> bhajans = new ArrayList<Bhajan>();
 	private String thoughtForTheWeek = "", divineCodeOfConduct = "";
+	private String template = "";
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
 
 	public String getThoughtForTheWeek() {
 		return thoughtForTheWeek;

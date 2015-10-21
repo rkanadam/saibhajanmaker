@@ -14,6 +14,8 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
+import org.apache.poi.xslf.usermodel.XSLFTextShape;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,6 +37,80 @@ public class BhajanMaker extends HttpServlet {
 
 		final Response response = new ObjectMapper().reader(Response.class)
 				.readValue(json);
+
+		final XMLSlideShow newPresentation;
+		if ("GAB2015".equals(response.getTemplate())) {
+			newPresentation = renderGABBhajans(request, response);
+		} else {
+			newPresentation = renderRegularBhajans(request, response);
+		}
+
+		httpResponse.setContentType("application/vnd.ms-ppt");
+		httpResponse.setHeader("Content-Disposition",
+				"inline; filename=\"bhajans.pptx\"");
+		newPresentation.write(httpResponse.getOutputStream());
+	}
+
+	private XMLSlideShow renderGABBhajans(final HttpServletRequest request,
+			final Response response) throws IOException {
+		final XMLSlideShow templatePresentation = new XMLSlideShow(request
+				.getSession().getServletContext()
+				.getResourceAsStream("/WEB-INF/templates/GAB2015/master.pptx"));
+		final XSLFSlide template = templatePresentation.getSlides()[0];
+
+		final XMLSlideShow newPresentation = new XMLSlideShow();
+
+		final List<Bhajan> bhajans = response.getBhajans();
+
+		for (int i = 0, len = bhajans.size(); i < len; ++i) {
+
+			final Bhajan bhajan = bhajans.get(i);
+			String firstLineOfNextBhajan = "", scaleOfNextBhajan = "";
+
+			if (i + 1 < len) {
+				final Bhajan nextBhajan = bhajans.get(i + 1);
+				firstLineOfNextBhajan = nextBhajan.getLyrics().split("\n")[0];
+				firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0,
+						Math.min(firstLineOfNextBhajan.length(), 35));
+				if (!firstLineOfNextBhajan.endsWith(" ")) {
+					int lastIndex = firstLineOfNextBhajan.lastIndexOf(' ');
+					if (lastIndex != -1) {
+						firstLineOfNextBhajan = firstLineOfNextBhajan
+								.substring(0, lastIndex);
+					}
+				}
+				scaleOfNextBhajan = nextBhajan.getScale();
+			}
+
+			final XSLFSlide slide = templatePresentation.createSlide();
+			slide.importContent(template);
+
+			final Iterator<XSLFShape> shapes = slide.iterator();
+			shapes.next();
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(firstLineOfNextBhajan);
+
+			List<XSLFTextParagraph> paragraphs = ((XSLFAutoShape) shapes.next())
+					.getTextParagraphs();
+			paragraphs.get(0).getTextRuns().get(0).setText(bhajan.getLyrics());
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(bhajan.getMeaning());
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(scaleOfNextBhajan);
+
+			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+					.getTextRuns().get(0).setText(bhajan.getScale());
+
+		}
+
+		return templatePresentation;
+	}
+
+	private XMLSlideShow renderRegularBhajans(HttpServletRequest request,
+			Response response) throws IOException {
 
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession().getServletContext()
@@ -101,7 +177,6 @@ public class BhajanMaker extends HttpServlet {
 		for (XSLFSlide slide : postUnisonPresentation.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
-		
 
 		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())) {
 			final XMLSlideShow divineCodeOfConductPresentation = new XMLSlideShow(
@@ -140,10 +215,7 @@ public class BhajanMaker extends HttpServlet {
 		for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
+		return newPresentation;
 
-		httpResponse.setContentType("application/vnd.ms-ppt");
-		httpResponse.setHeader("Content-Disposition",
-				"inline; filename=\"bhajans.pptx\"");
-		newPresentation.write(httpResponse.getOutputStream());
 	}
 }
