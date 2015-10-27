@@ -1,8 +1,10 @@
 package org.sathyasai.ssbcsj;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFShape;
@@ -69,44 +72,77 @@ public class BhajanMaker extends HttpServlet {
 
 			if (i + 1 < len) {
 				final Bhajan nextBhajan = bhajans.get(i + 1);
-				firstLineOfNextBhajan = nextBhajan.getLyrics().split("\n")[0];
-				firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0,
-						Math.min(firstLineOfNextBhajan.length(), 35));
-				if (!firstLineOfNextBhajan.endsWith(" ")) {
-					int lastIndex = firstLineOfNextBhajan.lastIndexOf(' ');
-					if (lastIndex != -1) {
-						firstLineOfNextBhajan = firstLineOfNextBhajan
-								.substring(0, lastIndex);
-					}
-				}
+				firstLineOfNextBhajan = getFirstLineForSlideBottom(nextBhajan
+						.getLyrics());
 				scaleOfNextBhajan = nextBhajan.getScale();
 			}
 
-			final XSLFSlide slide = templatePresentation.createSlide();
-			slide.importContent(template);
+			final String[] parts = Pattern.compile("^\\s*$", Pattern.MULTILINE)
+					.split(bhajan.getLyrics());
+			for (int j = 0, jlen = parts.length; j < jlen; ++j) {
+				final XSLFSlide slide = templatePresentation.createSlide();
+				slide.importContent(template);
 
-			final Iterator<XSLFShape> shapes = slide.iterator();
-			shapes.next();
+				final Iterator<XSLFShape> shapes = slide.iterator();
+				shapes.next();
 
-			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(firstLineOfNextBhajan);
+				if (j < parts.length - 1) {
+					((XSLFAutoShape) shapes.next())
+							.getTextParagraphs()
+							.get(0)
+							.getTextRuns()
+							.get(0)
+							.setText(
+									getFirstLineForSlideBottom("Continued: "
+											+ StringUtils.trimToEmpty(parts[j + 1])));
+					(((XSLFAutoShape) shapes.next()).getTextParagraphs())
+							.get(0).getTextRuns().get(0)
+							.setText(StringUtils.trimToEmpty(parts[j]));
 
-			List<XSLFTextParagraph> paragraphs = ((XSLFAutoShape) shapes.next())
-					.getTextParagraphs();
-			paragraphs.get(0).getTextRuns().get(0).setText(bhajan.getLyrics());
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getMeaning());
 
-			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(bhajan.getMeaning());
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getScale());
 
-			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(scaleOfNextBhajan);
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getScale());
+				} else {
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0)
+							.setText(firstLineOfNextBhajan);
 
-			((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-					.getTextRuns().get(0).setText(bhajan.getScale());
+					(((XSLFAutoShape) shapes.next()).getTextParagraphs())
+							.get(0).getTextRuns().get(0)
+							.setText(StringUtils.trimToEmpty(parts[j]));
 
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getMeaning());
+
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(scaleOfNextBhajan);
+
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getScale());
+				}
+			}
 		}
 
 		return templatePresentation;
+	}
+
+	private String getFirstLineForSlideBottom(final String lyrics) {
+		String firstLine = lyrics.split("\n")[0];
+		firstLine = firstLine.substring(0,
+				Math.min(firstLine.length(), 35));
+		if (!firstLine.endsWith(" ")) {
+			int lastIndex = firstLine.lastIndexOf(' ');
+			if (lastIndex != -1) {
+				firstLine = firstLine.substring(0,
+						lastIndex);
+			}
+		}
+		return firstLine;
 	}
 
 	private XMLSlideShow renderRegularBhajans(HttpServletRequest request,
@@ -155,19 +191,14 @@ public class BhajanMaker extends HttpServlet {
 				((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
 						.getTextRuns().get(0).setText(nextBhajan.getScale());
 
-				String firstLineOfNextBhajan = nextBhajan.getLyrics().split(
-						"\n")[0];
-				firstLineOfNextBhajan = firstLineOfNextBhajan.substring(0,
-						Math.min(firstLineOfNextBhajan.length(), 35));
-				if (!firstLineOfNextBhajan.endsWith(" ")) {
-					int lastIndex = firstLineOfNextBhajan.lastIndexOf(' ');
-					if (lastIndex != -1) {
-						firstLineOfNextBhajan = firstLineOfNextBhajan
-								.substring(0, lastIndex);
-					}
-				}
-				((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
-						.getTextRuns().get(0).setText(firstLineOfNextBhajan);
+				((XSLFAutoShape) shapes.next())
+						.getTextParagraphs()
+						.get(0)
+						.getTextRuns()
+						.get(0)
+						.setText(
+								getFirstLineForSlideBottom(nextBhajan
+										.getLyrics()));
 			}
 		}
 
