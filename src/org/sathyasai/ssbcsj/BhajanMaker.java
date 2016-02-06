@@ -150,6 +150,7 @@ public class BhajanMaker extends HttpServlet {
 		thoughtForTheDayIterator.next();
 		thoughtForTheDayIterator.next();
 		thoughtForTheDayIterator.next();
+		thoughtForTheDayIterator.next();
 		((XSLFAutoShape) thoughtForTheDayIterator.next()).getTextParagraphs()
 				.get(0).getTextRuns().get(0)
 				.setText(response.getThoughtForTheWeek());
