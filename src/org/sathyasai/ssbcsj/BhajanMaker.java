@@ -1,7 +1,7 @@
 package org.sathyasai.ssbcsj;
 
+import java.awt.Color;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -12,13 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFAutoShape;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
-import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
-import org.apache.poi.xslf.usermodel.XSLFTextShape;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -44,6 +41,8 @@ public class BhajanMaker extends HttpServlet {
 		final XMLSlideShow newPresentation;
 		if ("GAB2015".equals(response.getTemplate())) {
 			newPresentation = renderGABBhajans(request, response);
+		} else if ("Peninsula".equalsIgnoreCase(response.getTemplate())) {
+			newPresentation = renderPeninsulaTemplate(request, response);
 		} else {
 			newPresentation = renderRegularBhajans(request, response);
 		}
@@ -94,7 +93,8 @@ public class BhajanMaker extends HttpServlet {
 							.get(0)
 							.setText(
 									getFirstLineForSlideBottom("Continued: "
-											+ StringUtils.trimToEmpty(parts[j + 1])));
+											+ StringUtils
+													.trimToEmpty(parts[j + 1])));
 					(((XSLFAutoShape) shapes.next()).getTextParagraphs())
 							.get(0).getTextRuns().get(0)
 							.setText(StringUtils.trimToEmpty(parts[j]));
@@ -131,15 +131,134 @@ public class BhajanMaker extends HttpServlet {
 		return templatePresentation;
 	}
 
+	private XMLSlideShow renderPeninsulaTemplate(
+			final HttpServletRequest request, final Response response)
+			throws IOException {
+
+		final XMLSlideShow newPresentation = new XMLSlideShow();
+
+		final XMLSlideShow thoughtForTheDay = new XMLSlideShow(
+				request.getSession()
+						.getServletContext()
+						.getResourceAsStream(
+								"/WEB-INF/templates/Peninsula/thought_for_the_day.pptx"));
+
+		final XSLFSlide thoughtForTheDaySlide = newPresentation.createSlide();
+		thoughtForTheDaySlide.importContent(thoughtForTheDay.getSlides()[0]);
+		final Iterator<XSLFShape> thoughtForTheDayIterator = thoughtForTheDaySlide
+				.iterator();
+		thoughtForTheDayIterator.next();
+		thoughtForTheDayIterator.next();
+		thoughtForTheDayIterator.next();
+		((XSLFAutoShape) thoughtForTheDayIterator.next()).getTextParagraphs()
+				.get(0).getTextRuns().get(0)
+				.setText(response.getThoughtForTheWeek());
+
+		final XMLSlideShow after_thought_for_the_day = new XMLSlideShow(
+				request.getSession()
+						.getServletContext()
+						.getResourceAsStream(
+								"/WEB-INF/templates/Peninsula/after_thought_for_the_day.pptx"));
+		for (final XSLFSlide slide : after_thought_for_the_day.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+
+		final XMLSlideShow templatePresentation = new XMLSlideShow(request
+				.getSession()
+				.getServletContext()
+				.getResourceAsStream(
+						"/WEB-INF/templates/Peninsula/bhajans.pptx"));
+		final XSLFSlide template = templatePresentation.getSlides()[0];
+
+		final List<Bhajan> bhajans = response.getBhajans();
+
+		for (int i = 0, len = bhajans.size(); i < len; ++i) {
+
+			final Bhajan bhajan = bhajans.get(i);
+			String firstLineOfNextBhajan = "", scaleOfNextBhajan = "";
+
+			if (i + 1 < len) {
+				final Bhajan nextBhajan = bhajans.get(i + 1);
+				firstLineOfNextBhajan = getFirstLineForSlideBottom(nextBhajan
+						.getLyrics());
+				scaleOfNextBhajan = nextBhajan.getScale();
+			}
+
+			final String[] parts = Pattern.compile("^\\s*$", Pattern.MULTILINE)
+					.split(bhajan.getLyrics());
+			for (int j = 0, jlen = parts.length; j < jlen; ++j) {
+				final XSLFSlide slide = newPresentation.createSlide();
+				slide.importContent(template);
+
+				final Iterator<XSLFShape> shapes = slide.iterator();
+				shapes.next();
+
+				final XSLFAutoShape nextBhajanFirstLineShape = ((XSLFAutoShape) shapes
+						.next());
+
+				final XSLFAutoShape currentBhajanScale = (XSLFAutoShape) shapes
+						.next();
+
+				shapes.next();
+
+				if (j < parts.length - 1) {
+					shapes.next();
+					(((XSLFAutoShape) shapes.next()).getTextParagraphs())
+							.get(0).getTextRuns().get(0)
+							.setText(StringUtils.trimToEmpty(parts[j]));
+
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getMeaning());
+
+					nextBhajanFirstLineShape.getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getScale());
+
+					currentBhajanScale.getTextParagraphs().get(0).getTextRuns()
+							.get(0).setText(bhajan.getScale() + ": Continued");
+				} else {
+					System.out.println(nextBhajanFirstLineShape.getText());
+					System.out.println(currentBhajanScale.getText());
+					(((XSLFAutoShape) shapes.next()).getTextParagraphs())
+							.get(0).getTextRuns().get(0)
+							.setText(StringUtils.trimToEmpty(parts[j]));
+
+					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
+							.getTextRuns().get(0).setText(bhajan.getMeaning());
+					
+					nextBhajanFirstLineShape
+							.getTextParagraphs()
+							.get(0)
+							.getTextRuns()
+							.get(0)
+							.setText(
+									firstLineOfNextBhajan + "-"
+											+ scaleOfNextBhajan);
+
+					currentBhajanScale.getTextParagraphs().get(0).getTextRuns()
+							.get(0).setText(bhajan.getScale());
+				}
+			}
+		}
+
+		final XMLSlideShow postfix = new XMLSlideShow(request
+				.getSession()
+				.getServletContext()
+				.getResourceAsStream(
+						"/WEB-INF/templates/Peninsula/postfix.pptx"));
+		for (final XSLFSlide slide : postfix.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+
+		return newPresentation;
+	}
+
 	private String getFirstLineForSlideBottom(final String lyrics) {
 		String firstLine = lyrics.split("\n")[0];
-		firstLine = firstLine.substring(0,
-				Math.min(firstLine.length(), 35));
+		firstLine = firstLine.substring(0, Math.min(firstLine.length(), 35));
 		if (!firstLine.endsWith(" ")) {
 			int lastIndex = firstLine.lastIndexOf(' ');
 			if (lastIndex != -1) {
-				firstLine = firstLine.substring(0,
-						lastIndex);
+				firstLine = firstLine.substring(0, lastIndex);
 			}
 		}
 		return firstLine;
