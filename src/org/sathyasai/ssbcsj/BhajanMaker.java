@@ -43,6 +43,8 @@ public class BhajanMaker extends HttpServlet {
 			newPresentation = renderGABBhajans(request, response);
 		} else if ("Peninsula".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderPeninsulaTemplate(request, response);
+		} else if ("Shivaratri2016".equalsIgnoreCase(response.getTemplate())) {
+			newPresentation = renderShivaratri2016Bhajans(request, response);
 		} else {
 			newPresentation = renderRegularBhajans(request, response);
 		}
@@ -129,6 +131,86 @@ public class BhajanMaker extends HttpServlet {
 		}
 
 		return templatePresentation;
+	}
+
+	private XMLSlideShow renderShivaratri2016Bhajans(
+			final HttpServletRequest request, final Response response)
+			throws IOException {
+		final XMLSlideShow templatePresentation = new XMLSlideShow(request
+				.getSession()
+				.getServletContext()
+				.getResourceAsStream(
+						"/WEB-INF/templates/Shivaratri2016/master.pptx"));
+		final XSLFSlide template = templatePresentation.getSlides()[0];
+
+		final XMLSlideShow newPresentation = new XMLSlideShow();
+
+		final List<Bhajan> bhajans = response.getBhajans();
+
+		for (int i = 0, len = bhajans.size(); i < len; ++i) {
+
+			final Bhajan bhajan = bhajans.get(i);
+			String firstLineOfNextBhajan = "", scaleOfNextBhajan = "";
+
+			if (i + 1 < len) {
+				final Bhajan nextBhajan = bhajans.get(i + 1);
+				firstLineOfNextBhajan = getFirstLineForSlideBottom(nextBhajan
+						.getLyrics());
+				scaleOfNextBhajan = nextBhajan.getScale();
+			}
+
+			final String[] parts = Pattern.compile("^\\s*$", Pattern.MULTILINE)
+					.split(bhajan.getLyrics());
+			for (int j = 0, jlen = parts.length; j < jlen; ++j) {
+				final XSLFSlide slide = newPresentation.createSlide();
+				slide.importContent(template);
+
+				final Iterator<XSLFShape> shapes = slide.iterator();
+				shapes.next();
+
+				if (j < parts.length - 1) {
+					setValueIntoShape(slide, "NextBhajan",
+							getFirstLineForSlideBottom("Continued: "
+									+ StringUtils.trimToEmpty(parts[j + 1])));
+					setValueIntoShape(slide, "NextScale", bhajan.getScale());
+				} else {
+					setValueIntoShape(slide, "NextBhajan",
+							firstLineOfNextBhajan);
+					setValueIntoShape(slide, "NextScale", scaleOfNextBhajan);
+				}
+
+				setValueIntoShape(slide, "Bhajan", parts[j]);
+
+				setValueIntoShape(slide, "Meaning", bhajan.getMeaning());
+
+				setValueIntoShape(slide, "Scale", bhajan.getScale());
+			}
+		}
+
+		return newPresentation;
+	}
+
+	private XSLFAutoShape findShape(final XSLFSlide slide, final String string) {
+		for (XSLFShape shape : slide) {
+			if (shape instanceof XSLFAutoShape) {
+				final XSLFAutoShape textShape = XSLFAutoShape.class.cast(shape);
+				if (textShape.getText().trim().equalsIgnoreCase(string)) {
+					return textShape;
+				}
+			}
+		}
+		return null;
+	}
+
+	private boolean setValueIntoShape(final XSLFSlide slide,
+			final String shapePlaceHolderToLookFor, final String newValue) {
+		final XSLFAutoShape shape = findShape(slide, shapePlaceHolderToLookFor);
+		if (shape != null) {
+			shape.getTextParagraphs().get(0).getTextRuns().get(0)
+					.setText(newValue);
+			return true;
+		}
+		return false;
 	}
 
 	private XMLSlideShow renderPeninsulaTemplate(
@@ -225,7 +307,7 @@ public class BhajanMaker extends HttpServlet {
 
 					((XSLFAutoShape) shapes.next()).getTextParagraphs().get(0)
 							.getTextRuns().get(0).setText(bhajan.getMeaning());
-					
+
 					nextBhajanFirstLineShape
 							.getTextParagraphs()
 							.get(0)
