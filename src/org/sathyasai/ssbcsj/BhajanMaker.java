@@ -45,6 +45,8 @@ public class BhajanMaker extends HttpServlet {
 			newPresentation = renderPeninsulaTemplate(request, response);
 		} else if ("Shivaratri2016".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderShivaratri2016Bhajans(request, response);
+		} else if ("Regional Retreat 2016".equalsIgnoreCase(response.getTemplate())) {
+			newPresentation = renderRegionalRetreatBhajans(request, response);
 		} else {
 			newPresentation = renderRegularBhajans(request, response);
 		}
@@ -136,11 +138,23 @@ public class BhajanMaker extends HttpServlet {
 	private XMLSlideShow renderShivaratri2016Bhajans(
 			final HttpServletRequest request, final Response response)
 			throws IOException {
+		return renderTemplate(request, response, "/WEB-INF/templates/Shivaratri2016/master.pptx");
+	}
+	
+	private XMLSlideShow renderRegionalRetreatBhajans(
+			final HttpServletRequest request, final Response response)
+			throws IOException {
+		return renderTemplate(request, response, "/WEB-INF/templates/Regional Retreat 2016/master.pptx");
+	}
+
+	private XMLSlideShow renderTemplate(final HttpServletRequest request,
+			final Response response, String templateFilePath)
+			throws IOException {
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession()
 				.getServletContext()
 				.getResourceAsStream(
-						"/WEB-INF/templates/Shivaratri2016/master.pptx"));
+						templateFilePath));
 		final XSLFSlide template = templatePresentation.getSlides()[0];
 
 		final XMLSlideShow newPresentation = new XMLSlideShow();
