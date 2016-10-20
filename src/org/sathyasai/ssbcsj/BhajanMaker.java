@@ -41,6 +41,8 @@ public class BhajanMaker extends HttpServlet {
 		final XMLSlideShow newPresentation;
 		if ("GAB2015".equals(response.getTemplate())) {
 			newPresentation = renderGABBhajans(request, response);
+		} else if ("GAB2016".equals(response.getTemplate())) {
+			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2016/master.pptx");
 		} else if ("Peninsula".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderPeninsulaTemplate(request, response);
 		} else if ("Shivaratri2016".equalsIgnoreCase(response.getTemplate())) {
@@ -59,9 +61,10 @@ public class BhajanMaker extends HttpServlet {
 
 	private XMLSlideShow renderGABBhajans(final HttpServletRequest request,
 			final Response response) throws IOException {
-		final XMLSlideShow templatePresentation = new XMLSlideShow(request
-				.getSession().getServletContext()
-				.getResourceAsStream("/WEB-INF/templates/GAB2015/master.pptx"));
+		String x = "GAB2015";
+		final XMLSlideShow templatePresentation = new XMLSlideShow(
+				request				.getSession().getServletContext()
+				.getResourceAsStream("/WEB-INF/templates/" + x + "/master.pptx"));
 		final XSLFSlide template = templatePresentation.getSlides()[0];
 
 		final XMLSlideShow newPresentation = new XMLSlideShow();
