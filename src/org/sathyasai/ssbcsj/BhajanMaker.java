@@ -49,6 +49,8 @@ public class BhajanMaker extends HttpServlet {
 			newPresentation = renderShivaratri2016Bhajans(request, response);
 		} else if ("Regional Retreat 2016".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderRegionalRetreatBhajans(request, response);
+		} else if ("25th Anniversary".equalsIgnoreCase(response.getTemplate())) {
+			newPresentation = render25thAnniversaryTemplate(request, response);
 		} else {
 			newPresentation = renderRegularBhajans(request, response);
 		}
@@ -57,6 +59,68 @@ public class BhajanMaker extends HttpServlet {
 		httpResponse.setHeader("Content-Disposition",
 				"inline; filename=\"bhajans.pptx\"");
 		newPresentation.write(httpResponse.getOutputStream());
+	}
+
+	private XMLSlideShow render25thAnniversaryTemplate(
+			HttpServletRequest request, Response response) throws IOException {
+		
+
+		final XMLSlideShow newPresentation = new XMLSlideShow();
+
+		final XMLSlideShow prefix = new XMLSlideShow(request.getSession()
+				.getServletContext()
+				.getResourceAsStream("/WEB-INF/prefix.pptx"));
+		for (final XSLFSlide slide : prefix.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+
+		renderTemplate(request, response, "/WEB-INF/templates/25th Anniversary/master.pptx", newPresentation);
+
+		final XMLSlideShow postUnisonPresentation = new XMLSlideShow(request
+				.getSession().getServletContext()
+				.getResourceAsStream("/WEB-INF/postUnison.pptx"));
+		for (XSLFSlide slide : postUnisonPresentation.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+
+		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())) {
+			final XMLSlideShow divineCodeOfConductPresentation = new XMLSlideShow(
+					request.getSession()
+							.getServletContext()
+							.getResourceAsStream(
+									"/WEB-INF/divineCodeOfConduct.pptx"));
+			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
+				final XSLFSlide importedSlide = newPresentation.createSlide()
+						.importContent(slide);
+				((XSLFAutoShape) importedSlide.getShapes()[1])
+						.getTextParagraphs().get(0).getTextRuns().get(0)
+						.setText(response.getDivineCodeOfConduct());
+			}
+		}
+
+		if (!StringUtils.isEmpty(response.getThoughtForTheWeek())) {
+			final XMLSlideShow thoughtForTheWeekPresentation = new XMLSlideShow(
+					request.getSession()
+							.getServletContext()
+							.getResourceAsStream(
+									"/WEB-INF/thoughtForTheWeek.pptx"));
+			for (final XSLFSlide slide : thoughtForTheWeekPresentation
+					.getSlides()) {
+				final XSLFSlide importedSlide = newPresentation.createSlide()
+						.importContent(slide);
+				((XSLFAutoShape) importedSlide.getShapes()[1])
+						.getTextParagraphs().get(0).getTextRuns().get(0)
+						.setText(response.getThoughtForTheWeek());
+			}
+		}
+
+		final XMLSlideShow closingPrayersPresentation = new XMLSlideShow(
+				request.getSession().getServletContext()
+						.getResourceAsStream("/WEB-INF/closingPrayers.pptx"));
+		for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
+			newPresentation.createSlide().importContent(slide);
+		}
+		return newPresentation;
 	}
 
 	private XMLSlideShow renderGABBhajans(final HttpServletRequest request,
@@ -151,8 +215,17 @@ public class BhajanMaker extends HttpServlet {
 	}
 
 	private XMLSlideShow renderTemplate(final HttpServletRequest request,
-			final Response response, String templateFilePath)
+			final Response response, String templateFilePath) throws IOException {
+		return renderTemplate(request, response, templateFilePath, null);		
+	}
+	
+	private XMLSlideShow renderTemplate(final HttpServletRequest request,
+			final Response response, String templateFilePath, XMLSlideShow newPresentation)
 			throws IOException {
+		if (newPresentation == null) {
+			newPresentation = new XMLSlideShow();	
+		}
+		
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession()
 				.getServletContext()
@@ -160,7 +233,6 @@ public class BhajanMaker extends HttpServlet {
 						templateFilePath));
 		final XSLFSlide template = templatePresentation.getSlides()[0];
 
-		final XMLSlideShow newPresentation = new XMLSlideShow();
 
 		final List<Bhajan> bhajans = response.getBhajans();
 
