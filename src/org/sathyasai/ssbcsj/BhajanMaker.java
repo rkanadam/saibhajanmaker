@@ -63,64 +63,7 @@ public class BhajanMaker extends HttpServlet {
 
 	private XMLSlideShow render25thAnniversaryTemplate(
 			HttpServletRequest request, Response response) throws IOException {
-		
-
-		final XMLSlideShow newPresentation = new XMLSlideShow();
-
-		final XMLSlideShow prefix = new XMLSlideShow(request.getSession()
-				.getServletContext()
-				.getResourceAsStream("/WEB-INF/prefix.pptx"));
-		for (final XSLFSlide slide : prefix.getSlides()) {
-			newPresentation.createSlide().importContent(slide);
-		}
-
-		renderTemplate(request, response, "/WEB-INF/templates/25th Anniversary/master.pptx", newPresentation);
-
-		final XMLSlideShow postUnisonPresentation = new XMLSlideShow(request
-				.getSession().getServletContext()
-				.getResourceAsStream("/WEB-INF/postUnison.pptx"));
-		for (XSLFSlide slide : postUnisonPresentation.getSlides()) {
-			newPresentation.createSlide().importContent(slide);
-		}
-
-		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())) {
-			final XMLSlideShow divineCodeOfConductPresentation = new XMLSlideShow(
-					request.getSession()
-							.getServletContext()
-							.getResourceAsStream(
-									"/WEB-INF/divineCodeOfConduct.pptx"));
-			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
-				final XSLFSlide importedSlide = newPresentation.createSlide()
-						.importContent(slide);
-				((XSLFAutoShape) importedSlide.getShapes()[1])
-						.getTextParagraphs().get(0).getTextRuns().get(0)
-						.setText(response.getDivineCodeOfConduct());
-			}
-		}
-
-		if (!StringUtils.isEmpty(response.getThoughtForTheWeek())) {
-			final XMLSlideShow thoughtForTheWeekPresentation = new XMLSlideShow(
-					request.getSession()
-							.getServletContext()
-							.getResourceAsStream(
-									"/WEB-INF/thoughtForTheWeek.pptx"));
-			for (final XSLFSlide slide : thoughtForTheWeekPresentation
-					.getSlides()) {
-				final XSLFSlide importedSlide = newPresentation.createSlide()
-						.importContent(slide);
-				((XSLFAutoShape) importedSlide.getShapes()[1])
-						.getTextParagraphs().get(0).getTextRuns().get(0)
-						.setText(response.getThoughtForTheWeek());
-			}
-		}
-
-		final XMLSlideShow closingPrayersPresentation = new XMLSlideShow(
-				request.getSession().getServletContext()
-						.getResourceAsStream("/WEB-INF/closingPrayers.pptx"));
-		for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
-			newPresentation.createSlide().importContent(slide);
-		}
-		return newPresentation;
+		return renderTemplate(request, response, "/WEB-INF/templates/25th Anniversary/master.pptx");
 	}
 
 	private XMLSlideShow renderGABBhajans(final HttpServletRequest request,
@@ -129,7 +72,7 @@ public class BhajanMaker extends HttpServlet {
 		final XMLSlideShow templatePresentation = new XMLSlideShow(
 				request				.getSession().getServletContext()
 				.getResourceAsStream("/WEB-INF/templates/" + x + "/master.pptx"));
-		final XSLFSlide template = templatePresentation.getSlides()[0];
+		final XSLFSlide template = templatePresentation.getSlides().get(0);
 
 		final XMLSlideShow newPresentation = new XMLSlideShow();
 
@@ -231,7 +174,7 @@ public class BhajanMaker extends HttpServlet {
 				.getServletContext()
 				.getResourceAsStream(
 						templateFilePath));
-		final XSLFSlide template = templatePresentation.getSlides()[0];
+		final XSLFSlide template = templatePresentation.getSlides().get(0);
 
 
 		final List<Bhajan> bhajans = response.getBhajans();
@@ -266,6 +209,7 @@ public class BhajanMaker extends HttpServlet {
 					setValueIntoShape(slide, "NextBhajan",
 							firstLineOfNextBhajan);
 					setValueIntoShape(slide, "NextScale", scaleOfNextBhajan);
+					setValueIntoShape(slide, "NextBhajan, NextScale", firstLineOfNextBhajan + ", " + scaleOfNextBhajan);
 				}
 
 				setValueIntoShape(slide, "Bhajan", parts[j]);
@@ -315,7 +259,7 @@ public class BhajanMaker extends HttpServlet {
 								"/WEB-INF/templates/Peninsula/thought_for_the_day.pptx"));
 
 		final XSLFSlide thoughtForTheDaySlide = newPresentation.createSlide();
-		thoughtForTheDaySlide.importContent(thoughtForTheDay.getSlides()[0]);
+		thoughtForTheDaySlide.importContent(thoughtForTheDay.getSlides().get(0));
 		final Iterator<XSLFShape> thoughtForTheDayIterator = thoughtForTheDaySlide
 				.iterator();
 		thoughtForTheDayIterator.next();
@@ -340,7 +284,7 @@ public class BhajanMaker extends HttpServlet {
 				.getServletContext()
 				.getResourceAsStream(
 						"/WEB-INF/templates/Peninsula/bhajans.pptx"));
-		final XSLFSlide template = templatePresentation.getSlides()[0];
+		final XSLFSlide template = templatePresentation.getSlides().get(0);
 
 		final List<Bhajan> bhajans = response.getBhajans();
 
@@ -442,7 +386,7 @@ public class BhajanMaker extends HttpServlet {
 		final XMLSlideShow templatePresentation = new XMLSlideShow(request
 				.getSession().getServletContext()
 				.getResourceAsStream("/WEB-INF/master.pptx"));
-		final XSLFSlide template = templatePresentation.getSlides()[0];
+		final XSLFSlide template = templatePresentation.getSlides().get(0);
 
 		final XMLSlideShow newPresentation = new XMLSlideShow();
 
@@ -509,7 +453,7 @@ public class BhajanMaker extends HttpServlet {
 			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
-				((XSLFAutoShape) importedSlide.getShapes()[1])
+				((XSLFAutoShape) importedSlide.getShapes().get(0))
 						.getTextParagraphs().get(0).getTextRuns().get(0)
 						.setText(response.getDivineCodeOfConduct());
 			}
@@ -525,7 +469,7 @@ public class BhajanMaker extends HttpServlet {
 					.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
-				((XSLFAutoShape) importedSlide.getShapes()[1])
+				((XSLFAutoShape) importedSlide.getShapes().get(0))
 						.getTextParagraphs().get(0).getTextRuns().get(0)
 						.setText(response.getThoughtForTheWeek());
 			}
