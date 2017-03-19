@@ -200,13 +200,13 @@ public class BhajanMaker extends HttpServlet {
 							getFirstLineForSlideBottom("Continued: "
 									+ StringUtils.trimToEmpty(parts[j + 1])));
 					setValueIntoShape(slide, "NextScale", bhajan.getScale());
-					setValueIntoShape(slide, "NextBhajanNextScale", "Next: " + "Continued: "
+					setValueIntoShape(slide, "NextBhajanAndScale", "Next: " + "Continued: "
 							+ StringUtils.trimToEmpty(parts[j + 1]) + ", " + bhajan.getScale());
 				} else {
 					setValueIntoShape(slide, "NextBhajan",
 							firstLineOfNextBhajan);
 					setValueIntoShape(slide, "NextScale", scaleOfNextBhajan);
-					setValueIntoShape(slide, "NextBhajanNextScale", "Next: " + firstLineOfNextBhajan + ", " + scaleOfNextBhajan);
+					setValueIntoShape(slide, "NextBhajanAndScale", "Next: " + firstLineOfNextBhajan + ", " + scaleOfNextBhajan);
 				}
 
 				setValueIntoShape(slide, "Bhajan", parts[j]);
