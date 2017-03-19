@@ -4,9 +4,9 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. -->
-<project basedir="D:\\github\\saibhajanmaker" default="build" name="Sathya Sai Bhajan Maker">
+<project basedir="C:\\saibhajanmaker" default="build" name="Sathya Sai Bhajan Maker">
 	<property environment="env" />
-	<property name="TOMCAT_HOME" value="D:\\apache-tomcat-8.0.20" />
+	<property name="TOMCAT_HOME" value="C:\\Program Files\\Apache Software Foundation\\Tomcat 9.0" />
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.7" />
 	<property name="source" value="1.7" />
