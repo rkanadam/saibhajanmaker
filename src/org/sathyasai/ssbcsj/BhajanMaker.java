@@ -1,6 +1,5 @@
 package org.sathyasai.ssbcsj;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -489,16 +488,16 @@ public class BhajanMaker extends HttpServlet {
 
 		final XMLSlideShow prefix = new XMLSlideShow(request.getSession()
 				.getServletContext()
-				.getResourceAsStream("/WEB-INF/" + templateName + "/prefix.pptx"));
+				.getResourceAsStream("/WEB-INF/templates/" + templateName + "/prefix.pptx"));
 		for (final XSLFSlide slide : prefix.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
 
-		renderTemplate(request, response, templateName, newPresentation);
+		renderTemplate(request, response, "/WEB-INF/templates/" + templateName + "/master.pptx", newPresentation);
 
 		final XMLSlideShow postUnisonPresentation = new XMLSlideShow(request
 				.getSession().getServletContext()
-				.getResourceAsStream("/WEB-INF/postUnison.pptx"));
+				.getResourceAsStream("/WEB-INF/templates/" + templateName + "/postUnison.pptx"));
 		for (final XSLFSlide slide : postUnisonPresentation.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
@@ -508,7 +507,7 @@ public class BhajanMaker extends HttpServlet {
 					request.getSession()
 							.getServletContext()
 							.getResourceAsStream(
-									"/WEB-INF/" + templateName + "/divineCodeOfConduct.pptx"));
+									"/WEB-INF/templates/" + templateName + "/divineCodeOfConduct.pptx"));
 			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
@@ -523,7 +522,7 @@ public class BhajanMaker extends HttpServlet {
 					request.getSession()
 							.getServletContext()
 							.getResourceAsStream(
-									"/WEB-INF/" + templateName + "/thoughtForTheWeek.pptx"));
+									"/WEB-INF/templates/" + templateName + "/thoughtForTheWeek.pptx"));
 			for (final XSLFSlide slide : thoughtForTheWeekPresentation
 					.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
@@ -536,7 +535,7 @@ public class BhajanMaker extends HttpServlet {
 
 		final XMLSlideShow closingPrayersPresentation = new XMLSlideShow(
 				request.getSession().getServletContext()
-						.getResourceAsStream("/WEB-INF/" + templateName + "/closingPrayers.pptx"));
+						.getResourceAsStream("/WEB-INF/templates/" + templateName + "/closingPrayers.pptx"));
 		for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
