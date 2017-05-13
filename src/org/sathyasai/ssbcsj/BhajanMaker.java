@@ -329,8 +329,6 @@ public class BhajanMaker extends HttpServlet {
 					currentBhajanScale.getTextParagraphs().get(0).getTextRuns()
 							.get(0).setText(bhajan.getScale() + ": Continued");
 				} else {
-					System.out.println(nextBhajanFirstLineShape.getText());
-					System.out.println(currentBhajanScale.getText());
 					(((XSLFAutoShape) shapes.next()).getTextParagraphs())
 							.get(0).getTextRuns().get(0)
 							.setText(StringUtils.trimToEmpty(parts[j]));
@@ -513,9 +511,7 @@ public class BhajanMaker extends HttpServlet {
 			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
-				((XSLFAutoShape) importedSlide.getShapes().get(0))
-						.getTextParagraphs().get(0).getTextRuns().get(0)
-						.setText(response.getDivineCodeOfConduct());
+				setValueIntoShape(slide, "DiviceCodeOfConduct", response.getDivineCodeOfConduct());
 			}
 		}
 
@@ -529,9 +525,7 @@ public class BhajanMaker extends HttpServlet {
 					.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
-				((XSLFAutoShape) importedSlide.getShapes().get(0))
-						.getTextParagraphs().get(0).getTextRuns().get(0)
-						.setText(response.getThoughtForTheWeek());
+				setValueIntoShape(slide, "ThoughtForTheWeek", response.getThoughtForTheWeek());
 			}
 		}
 
