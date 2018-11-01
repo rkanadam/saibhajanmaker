@@ -42,6 +42,8 @@ public class BhajanMaker extends HttpServlet {
 			newPresentation = renderGABBhajans(request, response);
 		} else if ("GAB2017".equals(response.getTemplate())) {
 			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2017/master.pptx");
+		} else if ("GAB2018".equals(response.getTemplate())) {
+			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2018/master.pptx");
 		} else if ("GAB2016".equals(response.getTemplate())) {
 			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2016/master.pptx");
 		} else if ("Peninsula".equalsIgnoreCase(response.getTemplate())) {
