@@ -505,13 +505,20 @@ public class BhajanMaker extends HttpServlet {
 
 		final XMLSlideShow newPresentation = new XMLSlideShow();
 
-		final XMLSlideShow prefix = new XMLSlideShow(request
+		if (request
 				.getSession()
 				.getServletContext()
-				.getResourceAsStream(
-						"/WEB-INF/templates/" + templateName + "/prefix.pptx"));
-		for (final XSLFSlide slide : prefix.getSlides()) {
-			newPresentation.createSlide().importContent(slide);
+				.getResource(
+						"/WEB-INF/templates/" + templateName + "/prefix.pptx") != null) {
+			final XMLSlideShow prefix = new XMLSlideShow(request
+					.getSession()
+					.getServletContext()
+					.getResourceAsStream(
+							"/WEB-INF/templates/" + templateName
+									+ "/prefix.pptx"));
+			for (final XSLFSlide slide : prefix.getSlides()) {
+				newPresentation.createSlide().importContent(slide);
+			}
 		}
 
 		renderTemplate(request, response, "/WEB-INF/templates/" + templateName
