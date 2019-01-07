@@ -41,21 +41,30 @@ public class BhajanMaker extends HttpServlet {
 		if ("GAB2015".equals(response.getTemplate())) {
 			newPresentation = renderGABBhajans(request, response);
 		} else if ("GAB2017".equals(response.getTemplate())) {
-			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2017/master.pptx");
+			newPresentation = renderTemplate(request, response,
+					"/WEB-INF/templates/GAB2017/master.pptx");
 		} else if ("GAB2018".equals(response.getTemplate())) {
-			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2018/master.pptx");
+			newPresentation = renderTemplate(request, response,
+					"/WEB-INF/templates/GAB2018/master.pptx");
 		} else if ("GAB2016".equals(response.getTemplate())) {
-			newPresentation = renderTemplate(request, response, "/WEB-INF/templates/GAB2016/master.pptx");
+			newPresentation = renderTemplate(request, response,
+					"/WEB-INF/templates/GAB2016/master.pptx");
 		} else if ("Peninsula".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderPeninsulaTemplate(request, response);
 		} else if ("Shivaratri2016".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderShivaratri2016Bhajans(request, response);
-		} else if ("Regional Retreat 2016".equalsIgnoreCase(response.getTemplate())) {
+		} else if ("Regional Retreat 2016".equalsIgnoreCase(response
+				.getTemplate())) {
 			newPresentation = renderRegionalRetreatBhajans(request, response);
 		} else if ("25th Anniversary".equalsIgnoreCase(response.getTemplate())) {
-			newPresentation = renderCSJBhajanTemplate(request, response, "25th Anniversary");
-		} else {
+			newPresentation = renderCSJBhajanTemplate(request, response,
+					"25th Anniversary");
+		} else if ("default".equalsIgnoreCase(response.getTemplate())) {
 			newPresentation = renderRegularBhajans(request, response);
+		} else {
+			newPresentation = renderCSJBhajanTemplate(request, response,
+					"/WEB-INF/templates/" + response.getTemplate()
+							+ "/master.pptx");
 		}
 
 		httpResponse.setContentType("application/vnd.ms-ppt");
@@ -64,13 +73,14 @@ public class BhajanMaker extends HttpServlet {
 		newPresentation.write(httpResponse.getOutputStream());
 	}
 
-
 	private XMLSlideShow renderGABBhajans(final HttpServletRequest request,
 			final Response response) throws IOException {
 		String x = "GAB2015";
 		final XMLSlideShow templatePresentation = new XMLSlideShow(
-				request				.getSession().getServletContext()
-				.getResourceAsStream("/WEB-INF/templates/" + x + "/master.pptx"));
+				request.getSession()
+						.getServletContext()
+						.getResourceAsStream(
+								"/WEB-INF/templates/" + x + "/master.pptx"));
 		final XSLFSlide template = templatePresentation.getSlides().get(0);
 
 		final XMLSlideShow newPresentation = new XMLSlideShow();
@@ -147,34 +157,34 @@ public class BhajanMaker extends HttpServlet {
 	private XMLSlideShow renderShivaratri2016Bhajans(
 			final HttpServletRequest request, final Response response)
 			throws IOException {
-		return renderTemplate(request, response, "/WEB-INF/templates/Shivaratri2016/master.pptx");
+		return renderTemplate(request, response,
+				"/WEB-INF/templates/Shivaratri2016/master.pptx");
 	}
-	
+
 	private XMLSlideShow renderRegionalRetreatBhajans(
 			final HttpServletRequest request, final Response response)
 			throws IOException {
-		return renderTemplate(request, response, "/WEB-INF/templates/Regional Retreat 2016/master.pptx");
+		return renderTemplate(request, response,
+				"/WEB-INF/templates/Regional Retreat 2016/master.pptx");
 	}
 
 	private XMLSlideShow renderTemplate(final HttpServletRequest request,
-			final Response response, String templateFilePath) throws IOException {
-		return renderTemplate(request, response, templateFilePath, null);		
-	}
-	
-	private XMLSlideShow renderTemplate(final HttpServletRequest request,
-			final Response response, String templateFilePath, XMLSlideShow newPresentation)
+			final Response response, String templateFilePath)
 			throws IOException {
-		if (newPresentation == null) {
-			newPresentation = new XMLSlideShow();	
-		}
-		
-		final XMLSlideShow templatePresentation = new XMLSlideShow(request
-				.getSession()
-				.getServletContext()
-				.getResourceAsStream(
-						templateFilePath));
-		final XSLFSlide template = templatePresentation.getSlides().get(0);
+		return renderTemplate(request, response, templateFilePath, null);
+	}
 
+	private XMLSlideShow renderTemplate(final HttpServletRequest request,
+			final Response response, String templateFilePath,
+			XMLSlideShow newPresentation) throws IOException {
+		if (newPresentation == null) {
+			newPresentation = new XMLSlideShow();
+		}
+
+		final XMLSlideShow templatePresentation = new XMLSlideShow(request
+				.getSession().getServletContext()
+				.getResourceAsStream(templateFilePath));
+		final XSLFSlide template = templatePresentation.getSlides().get(0);
 
 		final List<Bhajan> bhajans = response.getBhajans();
 
@@ -204,13 +214,18 @@ public class BhajanMaker extends HttpServlet {
 							getFirstLineForSlideBottom("Continued: "
 									+ StringUtils.trimToEmpty(parts[j + 1])));
 					setValueIntoShape(slide, "NextScale", bhajan.getScale());
-					setValueIntoShape(slide, "NextBhajanAndScale", "Next: " + "Continued: "
-							+ StringUtils.trimToEmpty(parts[j + 1]) + ", " + bhajan.getScale());
+					setValueIntoShape(
+							slide,
+							"NextBhajanAndScale",
+							"Next: " + "Continued: "
+									+ StringUtils.trimToEmpty(parts[j + 1])
+									+ ", " + bhajan.getScale());
 				} else {
 					setValueIntoShape(slide, "NextBhajan",
 							firstLineOfNextBhajan);
 					setValueIntoShape(slide, "NextScale", scaleOfNextBhajan);
-					setValueIntoShape(slide, "NextBhajanAndScale", "Next: " + firstLineOfNextBhajan + ", " + scaleOfNextBhajan);
+					setValueIntoShape(slide, "NextBhajanAndScale", "Next: "
+							+ firstLineOfNextBhajan + ", " + scaleOfNextBhajan);
 				}
 
 				setValueIntoShape(slide, "Bhajan", parts[j]);
@@ -260,7 +275,8 @@ public class BhajanMaker extends HttpServlet {
 								"/WEB-INF/templates/Peninsula/thought_for_the_day.pptx"));
 
 		final XSLFSlide thoughtForTheDaySlide = newPresentation.createSlide();
-		thoughtForTheDaySlide.importContent(thoughtForTheDay.getSlides().get(0));
+		thoughtForTheDaySlide
+				.importContent(thoughtForTheDay.getSlides().get(0));
 		final Iterator<XSLFShape> thoughtForTheDayIterator = thoughtForTheDaySlide
 				.iterator();
 		thoughtForTheDayIterator.next();
@@ -378,7 +394,7 @@ public class BhajanMaker extends HttpServlet {
 		}
 		return firstLine;
 	}
-	
+
 	private XMLSlideShow renderRegularBhajans(HttpServletRequest request,
 			Response response) throws IOException {
 
@@ -484,60 +500,99 @@ public class BhajanMaker extends HttpServlet {
 
 	}
 
-
 	private XMLSlideShow renderCSJBhajanTemplate(HttpServletRequest request,
 			Response response, String templateName) throws IOException {
-		
+
 		final XMLSlideShow newPresentation = new XMLSlideShow();
 
-		final XMLSlideShow prefix = new XMLSlideShow(request.getSession()
+		final XMLSlideShow prefix = new XMLSlideShow(request
+				.getSession()
 				.getServletContext()
-				.getResourceAsStream("/WEB-INF/templates/" + templateName + "/prefix.pptx"));
+				.getResourceAsStream(
+						"/WEB-INF/templates/" + templateName + "/prefix.pptx"));
 		for (final XSLFSlide slide : prefix.getSlides()) {
 			newPresentation.createSlide().importContent(slide);
 		}
 
-		renderTemplate(request, response, "/WEB-INF/templates/" + templateName + "/master.pptx", newPresentation);
+		renderTemplate(request, response, "/WEB-INF/templates/" + templateName
+				+ "/master.pptx", newPresentation);
 
-		final XMLSlideShow postUnisonPresentation = new XMLSlideShow(request
-				.getSession().getServletContext()
-				.getResourceAsStream("/WEB-INF/templates/" + templateName + "/postUnison.pptx"));
-		for (final XSLFSlide slide : postUnisonPresentation.getSlides()) {
-			newPresentation.createSlide().importContent(slide);
+		if (request
+				.getSession()
+				.getServletContext()
+				.getResource(
+						"/WEB-INF/templates/" + templateName
+								+ "/postUnison.pptx") != null) {
+			final XMLSlideShow postUnisonPresentation = new XMLSlideShow(
+					request.getSession()
+							.getServletContext()
+							.getResourceAsStream(
+									"/WEB-INF/templates/" + templateName
+											+ "/postUnison.pptx"));
+			for (final XSLFSlide slide : postUnisonPresentation.getSlides()) {
+				newPresentation.createSlide().importContent(slide);
+			}
 		}
 
-		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())) {
+		if (!StringUtils.isEmpty(response.getDivineCodeOfConduct())
+				&& request
+						.getSession()
+						.getServletContext()
+						.getResource(
+								"/WEB-INF/templates/" + templateName
+										+ "/divineCodeOfConduct.pptx") != null) {
 			final XMLSlideShow divineCodeOfConductPresentation = new XMLSlideShow(
 					request.getSession()
 							.getServletContext()
 							.getResourceAsStream(
-									"/WEB-INF/templates/" + templateName + "/divineCodeOfConduct.pptx"));
+									"/WEB-INF/templates/" + templateName
+											+ "/divineCodeOfConduct.pptx"));
 			for (XSLFSlide slide : divineCodeOfConductPresentation.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
-				setValueIntoShape(slide, "DiviceCodeOfConduct", response.getDivineCodeOfConduct());
+				setValueIntoShape(importedSlide, "DivineCodeOfConduct",
+						response.getDivineCodeOfConduct());
 			}
 		}
 
-		if (!StringUtils.isEmpty(response.getThoughtForTheWeek())) {
+		if (!StringUtils.isEmpty(response.getThoughtForTheWeek())
+				&& request
+						.getSession()
+						.getServletContext()
+						.getResource(
+								"/WEB-INF/templates/" + templateName
+										+ "/thoughtForTheWeek.pptx") != null) {
 			final XMLSlideShow thoughtForTheWeekPresentation = new XMLSlideShow(
 					request.getSession()
 							.getServletContext()
 							.getResourceAsStream(
-									"/WEB-INF/templates/" + templateName + "/thoughtForTheWeek.pptx"));
+									"/WEB-INF/templates/" + templateName
+											+ "/thoughtForTheWeek.pptx"));
 			for (final XSLFSlide slide : thoughtForTheWeekPresentation
 					.getSlides()) {
 				final XSLFSlide importedSlide = newPresentation.createSlide()
 						.importContent(slide);
-				setValueIntoShape(slide, "ThoughtForTheWeek", response.getThoughtForTheWeek());
+				setValueIntoShape(importedSlide, "ThoughtForTheWeek",
+						response.getThoughtForTheWeek());
 			}
 		}
 
-		final XMLSlideShow closingPrayersPresentation = new XMLSlideShow(
-				request.getSession().getServletContext()
-						.getResourceAsStream("/WEB-INF/templates/" + templateName + "/closingPrayers.pptx"));
-		for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
-			newPresentation.createSlide().importContent(slide);
+		if (request
+				.getSession()
+				.getServletContext()
+				.getResource(
+						"/WEB-INF/templates/" + templateName
+								+ "/closingPrayers.pptx") != null) {
+
+			final XMLSlideShow closingPrayersPresentation = new XMLSlideShow(
+					request.getSession()
+							.getServletContext()
+							.getResourceAsStream(
+									"/WEB-INF/templates/" + templateName
+											+ "/closingPrayers.pptx"));
+			for (final XSLFSlide slide : closingPrayersPresentation.getSlides()) {
+				newPresentation.createSlide().importContent(slide);
+			}
 		}
 		return newPresentation;
 	}
