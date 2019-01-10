@@ -63,8 +63,7 @@ public class BhajanMaker extends HttpServlet {
 			newPresentation = renderRegularBhajans(request, response);
 		} else {
 			newPresentation = renderCSJBhajanTemplate(request, response,
-					"/WEB-INF/templates/" + response.getTemplate()
-							+ "/master.pptx");
+					response.getTemplate());
 		}
 
 		httpResponse.setContentType("application/vnd.ms-ppt");
